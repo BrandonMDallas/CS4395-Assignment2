@@ -179,34 +179,7 @@ if __name__ == "__main__":
 
         epoch += 1
 
-    print("========== Testing on held‑out data ==========")
-    with open(args.test_data) as f:
-        test_raw = json.load(f)
 
-    correct = 0
-    total = 0
-    # test_raw is a list of dicts with "text" and "stars"
-    for elt in tqdm(test_raw):
-        words = elt["text"].split()
-        # strip punctuation and lowercase
-        words = [w.lower() for w in " ".join(words)
-                        .translate(str.maketrans("", "", string.punctuation))
-                        .split()]
-        # lookup embeddings
-        vecs = [word_embedding.get(w, word_embedding["unk"]) for w in words]
-        # build input tensor: (seq_len, 1, embed_dim)
-        inputs = torch.tensor(vecs).view(len(vecs), 1, -1)
-
-        # forward pass
-        with torch.no_grad():
-            output = model(inputs)
-        pred = torch.argmax(output).item()
-        gold = elt["stars"] - 1
-        correct += (pred == gold)
-        total += 1
-
-    test_acc = correct / total * 100
-    print(f"Test accuracy: {test_acc:.2f}%")
 
 
     # You may find it beneficial to keep track of training accuracy or training loss;

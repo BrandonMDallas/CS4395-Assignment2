@@ -37,7 +37,6 @@ class FFNN(nn.Module):
         z = self.W2(h)
         # [to fill] obtain probability dist.
         predicted_vector = self.softmax(z)
-        
         return predicted_vector
 
 
@@ -184,29 +183,5 @@ if __name__ == "__main__":
         print("Validation accuracy for epoch {}: {}".format(epoch + 1, correct / total))
         print("Validation time for this epoch: {}".format(time.time() - start_time))
 
-    print("========== Testing on held‑out data ==========")
-    with open(args.test_data) as f:
-        test_raw = json.load(f)
-
-    correct = 0
-    total = 0
-    for elt in tqdm(test_raw):
-        # tokenize
-        words = elt["text"].split()
-        # build BOW vector
-        vector = torch.zeros(len(word2index))
-        for w in words:
-            idx = word2index.get(w, word2index[unk])
-            vector[idx] += 1
-
-        # forward pass
-        with torch.no_grad():
-            output = model(vector)
-        pred = torch.argmax(output).item()
-        gold = elt["stars"] - 1
-
-        correct += (pred == gold)
-        total += 1
-
-    test_acc = correct / total * 100
-    print(f"Test accuracy: {test_acc:.2f}%")
+    # write out to results/test.out
+    
