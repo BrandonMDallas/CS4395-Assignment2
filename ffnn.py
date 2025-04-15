@@ -112,6 +112,7 @@ if __name__ == "__main__":
 
     # load data
     print("========== Loading data ==========")
+    train_raw, valid_raw = load_data(args.train_data, args.val_data)
     train_data, valid_data = load_data(args.train_data, args.val_data) # X_data is a list of pairs (document, y); y in {0,1,2,3,4}
     vocab = make_vocab(train_data)
     vocab, word2index, index2word = make_indices(vocab)
@@ -183,5 +184,17 @@ if __name__ == "__main__":
         print("Validation accuracy for epoch {}: {}".format(epoch + 1, correct / total))
         print("Validation time for this epoch: {}".format(time.time() - start_time))
 
+        # === collect misclassifications ===
+        misclassified = []
+        model.eval()
+        with torch.no_grad():
+            for (vec, _), (words, gold) in zip(valid_data, valid_raw):
+                pred = torch.argmax(model(vec)).item()
+                if pred != gold and len(misclassified) < 5:
+                    misclassified.append((words, gold+1, pred+1))
+        if misclassified:
+            print("Sample misclassified reviews:")
+            for words, gold, pred in misclassified:
+                text = " ".join(words)
+                print(f"  \"{text[:60]}...\"  Gold={gold}, Pred={pred}")
     # write out to results/test.out
-    
